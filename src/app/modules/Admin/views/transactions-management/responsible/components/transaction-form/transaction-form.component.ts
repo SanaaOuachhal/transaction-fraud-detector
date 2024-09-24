@@ -1,7 +1,8 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {TransactionService} from "../../../../services/transaction.service";
-import {Transaction} from "../../../../interfaces/transaction";
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {TransactionService} from "../../../../../services/transaction.service";
+import Transaction from "../../../../../interfaces/transaction";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+
 import {
   ButtonCloseDirective,
   ButtonDirective,
@@ -59,7 +60,7 @@ export type FormMode = 'CREATE' | 'UPDATE';
   templateUrl: './transaction-form.component.html',
   styleUrl: './transaction-form.component.scss'
 })
-export class TransactionFormComponent implements OnInit {
+export class TransactionFormComponent {
 
   @Input()
   display = false;
@@ -68,7 +69,17 @@ export class TransactionFormComponent implements OnInit {
   mode: FormMode = 'CREATE';
 
   @Input()
-  tx: Transaction = {};
+  set transactionId(transactionId: number | null) {
+    if (transactionId) {
+      this.service.findById(transactionId)
+        .subscribe(tx => this.transaction = tx);
+    }
+  }
+
+  transaction: Transaction = {
+    state: "Pending"
+  };
+
 
   @Output()
   displayChange: EventEmitter<boolean> = new EventEmitter();
@@ -82,10 +93,6 @@ export class TransactionFormComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {
-  }
-
-
   create(tx: Transaction) {
     this.service.create(tx).subscribe((tx) => {
       this.notifyAndClose(tx);
@@ -98,12 +105,11 @@ export class TransactionFormComponent implements OnInit {
     })
   }
 
-  onSaveChanges(): void {
+  onSaveChanges(transaction: Transaction): void {
     if (!this.isPreview) {
-      return this.mode === "CREATE" ? this.create(this.tx) : this.update(this.tx);
+      return this.mode === "CREATE" ? this.create(transaction) : this.update(transaction);
     }
   }
-
 
   closeModal() {
     this.display = !this.display;

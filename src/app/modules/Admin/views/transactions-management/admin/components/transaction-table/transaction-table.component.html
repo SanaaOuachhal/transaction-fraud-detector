@@ -1,0 +1,112 @@
+<c-row ngPreserveWhitespaces>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-body>
+        <h2 class="p-2">Transactions</h2>
+        <div>
+          <button cButton class="me-1 addTransactionBtn mt-3" color="primary" type="submit" (click)="addNew()">
+            Add New Transaction
+          </button>
+        </div>
+        <table striped hover cTable style="margin-top: 2rem;">
+          <thead cTableColor="dark">
+          <tr>
+            <th scope="col">User id</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Device id</th>
+            <th scope="col">Merchant id</th>
+            <th scope="col">Http service name</th>
+            <th scope="col">Status</th>
+            <th scope="col"></th>
+
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let transaction of transactions">
+            <td>{{ transaction.userId }}</td>
+            <td>{{ transaction.amount }}</td>
+            <td>{{ transaction.device_id }}</td>
+            <td>{{ transaction.merchant_id }}</td>
+            <td>{{ transaction.http_service_name }}</td>
+            <td>
+              <h5>
+                <c-badge [color]="badgeColor[transaction.state]">
+                  {{ transaction.state }}
+                </c-badge>
+              </h5>
+            </td>
+            <td>
+              <c-dropdown>
+                <button cButton cDropdownToggle color="secondary" variant="outline">
+                  Action
+                </button>
+                <ul cDropdownMenu>
+                  <li>
+                    <button cDropdownItem (click)="openUpdate(transaction.id || 0)">
+                      <svg cIcon class="me-2" name="cil-pencil"></svg>
+                      Update
+                    </button>
+
+                  </li>
+                  <li>
+                    <button cDropdownItem (click)="showDetails(transaction.id || 0)">
+                      <i class="me-2 fa fa-eye"></i>
+                      Preview
+                    </button>
+                  </li>
+                  <li>
+                    <button cDropdownItem (click)="openDeletePopUp(transaction)">
+                      <svg cIcon class="me-2" name="cil-trash"></svg>
+                      Delete
+                    </button>
+                  </li>
+                </ul>
+              </c-dropdown>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+
+        <c-pagination align="end">
+          <li cPageItem [disabled]="pageNumber == 1">
+            <!--<a cPageLink [routerLink]="">Previous</a>-->
+            <button cPageLink (click)="goToPage(pageNumber - 1)">Previous</button>
+          </li>
+          <li cPageItem
+              *ngFor="let page of [].constructor(totalPages); let i = index">
+            <button cPageLink (click)="goToPage(i!)">{{ i + 1 }}</button>
+          </li>
+
+          <li cPageItem [disabled]="pageNumber == totalPages">
+            <!--<a cPageLink [routerLink]>Next</a>-->
+            <button cPageLink (click)="goToPage(pageNumber + 1)">Next</button>
+          </li>
+        </c-pagination>
+
+      </c-card-body>
+    </c-card>
+  </c-col>
+
+</c-row>
+
+<app-transaction-form [(display)]="displayForm"
+                      [mode]="mode"
+                      [transactionId]="transactionPreviewId || null"
+                      [isPreview]="isPreview"
+                      (onSave)="handleSave()"></app-transaction-form>
+
+
+<c-modal id="liveDemoModal" [visible]="visible" (visibleChange)="handleLiveDemoChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Modal title</h5>
+    <button (click)="dialogDeletionConfirmation()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>Are you sure you want to delete?</c-modal-body>
+  <c-modal-footer>
+    <button (click)="cancelDeletion()" cButton color="secondary">
+      Cancel
+    </button>
+    <button cButton color="danger" (click)="delete()">Delete</button>
+  </c-modal-footer>
+</c-modal>
+

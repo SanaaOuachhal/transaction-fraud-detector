@@ -1,19 +1,19 @@
-export type TransactionType = 'TRANSFER' | 'CASH_OUT' | 'DEBIT' | 'PAYMENT' | 'CASH_IN';
-export type TransactionState = 'Normal' | 'Fraudulent'| 'Suspicious'
+export type TransactionState = 'Normal' | 'Fraudulent' | 'Suspicious' | 'Pending';
 
 
-
-
-export interface Transaction {
-  id?: number;
-  step?: number;
+export default interface Transaction {
+  id?: number;  // Optional if generated automatically
+  userId?: string;
   amount?: number;
-  nameOrig?: string;
-  oldbalanceOrg?: number;
-  newbalanceOrig?: number;
-  nameDest?: string;
-  oldbalanceDest?: number;
-  newbalanceDest?: number;
-  type?: TransactionType;
-  state?: TransactionState;
+  device_id?: string;
+  merchant_id?: number;
+  operation_start_date?: Date;
+  operation_end_date?: Date;
+  ip_address?: string;
+  http_service_name?: string;
+  feesPaymentMode?: number;
+  payerFees?: number;
+  state: TransactionState;
 }
+
+

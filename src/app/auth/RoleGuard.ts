@@ -8,6 +8,7 @@ import {
   RouterStateSnapshot
 } from '@angular/router';
 import {KeycloakService} from 'keycloak-angular';
+import {of} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +22,8 @@ export class RoleGuard implements CanActivate {
   }
 
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): MaybeAsync<GuardResult> {
-    setTimeout(() => {
+   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): MaybeAsync<GuardResult> {
+     setTimeout(() => {
 
       // @ts-ignore
       const roles: string[] = this.keycloak.getKeycloakInstance().tokenParsed.realm_access.roles;
@@ -35,7 +36,7 @@ export class RoleGuard implements CanActivate {
       }
 
     }, 500)
-    // @ts-ignore
-    return null;
+
+    return of(true);
   }
 }

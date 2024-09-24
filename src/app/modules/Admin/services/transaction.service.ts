@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams} from "@angular/common/http";
 import {Observable} from "rxjs";
-import {Transaction, TransactionState} from "../interfaces/transaction";
+import Transaction, {TransactionState} from "../interfaces/transaction";
 import {Page} from "../interfaces/page";
+import TransactionStats from "../interfaces/transactionStats";
 
 @Injectable({
   providedIn: 'root'
@@ -17,6 +18,9 @@ export class TransactionService {
   create(tx: Transaction): Observable<any> {
     return this.http.post(this.url, tx);
   }
+ /* sendTransaction(transaction: Transaction): Observable<any> {
+    return this.http.post(this.url, transaction);
+  }*/
 
   getAll(): Observable<Transaction[]> {
     return this.http.get<Transaction[]>(this.url);
@@ -35,9 +39,14 @@ export class TransactionService {
   }
 
   getPaginatedData(pageSize: number, pageNumber: number): Observable<Page<Transaction>> {
-    return this.http.get<any>(this.url + '?pageSize=' + pageSize + '&pageNumber=' + pageNumber);
+    return this.http.get<any>(this.url + '?size=' + pageSize + '&page=' + pageNumber + '&sort=id,desc');
   }
-  getSuspiciousTransactions(): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${this.url}Suspicious`);
+
+  getSuspiciousTransactions(pageSize: number, pageNumber: number): Observable<Page<Transaction>> {
+    return this.http.get<Page<Transaction>>(this.url + 'Suspicious' + '?size=' + pageSize + '&page=' + pageNumber + '&sort=id,desc');
+  }
+
+  getStats(): Observable<TransactionStats> {
+    return this.http.get<TransactionStats>(`${this.url}stats`);
   }
 }

@@ -21,3 +21,10 @@
 // Examples
 // We use those styles to show code examples, you should remove them in your application.
 @import "examples";
+
+c-card-body > div {
+  :nth-child(2){
+    margin-bottom: 1rem;
+  }
+}
+

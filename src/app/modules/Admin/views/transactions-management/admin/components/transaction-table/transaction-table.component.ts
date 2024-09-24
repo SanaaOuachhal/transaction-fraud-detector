@@ -29,13 +29,13 @@ import {
   TableDirective
 } from "@coreui/angular";
 import {DocsExampleComponent} from "@docs-components/docs-example/docs-example.component";
-import {TransactionService} from "../../../../services/transaction.service";
-import {Transaction, TransactionState} from "../../../../interfaces/transaction";
+import {TransactionService} from "../../../../../services/transaction.service";
 import {NgForOf, NgIf} from "@angular/common";
 import {FormMode, TransactionFormComponent} from "../transaction-form/transaction-form.component";
-import {ToasterService} from "../../../../../../services/toaster.service";
-import {RouterLink} from "@angular/router";
+import {ToasterService} from "../../../../../../../services/toaster.service";
+import {ActivatedRoute, RouterLink} from "@angular/router";
 import {IconDirective} from "@coreui/icons-angular";
+import Transaction from "../../../../../interfaces/transaction";
 
 
 @Component({
@@ -79,56 +79,85 @@ import {IconDirective} from "@coreui/icons-angular";
   styleUrl: './transaction-table.component.scss'
 })
 export class TransactionTableComponent implements OnInit {
+
   transactions: Transaction[] = [];
   public visible = false;
-  tx: Transaction = {};
+  tx: Transaction = {
+    state: "Pending"
+  };
+  transactionPreviewId: number = 0;
+
   displayForm: boolean = false;
   mode: FormMode = 'CREATE';
   isPreview = false;
   color: string = "";
+  badgeColor: any = {
+    Suspicious: 'warning',
+    Normal: 'success',
+    Fraudulent: 'danger',
+    Pending: 'secondary',
+  }
 
-  pageSize = 2;
-  pageNumber = 1;
+  pageSize = 5;
+  pageNumber = 0;
   totalPages = 0;
 
 
   //private cachedData: any[];
 
   constructor(private service: TransactionService,
-              private toasterService: ToasterService) {
+              private toasterService: ToasterService,
+              private route: ActivatedRoute) {
   }
 
   ngOnInit() {
     this.fetchData();
+    this.route.queryParams.subscribe(params => {
+      if(params && params['mode'] == 'preview'){
+        this.showDetails(params['id'])
+      }
+    })
   }
 
+  fetchData(): void {
+    this.service.getPaginatedData(this.pageSize!, this.pageNumber!).subscribe(
+      (data) => {
+        this.transactions = data.content;
+        this.totalPages = data.totalPages;
+      }
+    );
+  }
 
   addNew() {
     this.displayForm = true;
     this.mode = 'CREATE';
-    this.tx = {};
+    this.tx = {
+      state: "Pending"
+    };
     this.isPreview = false;
+    this.fetchData()
   }
 
-  openUpdate(tx: Transaction) {
+  openUpdate(txId: number) {
     this.displayForm = true;
     this.mode = 'UPDATE';
-    this.tx = tx;
+    this.transactionPreviewId = txId;
     this.isPreview = false;
+    this.fetchData()
   }
 
 
-  showDetails(tx: Transaction) {
-    console.log("Preview of ", tx.id, "is clicked");
+  showDetails(txId: number) {
     this.displayForm = true;
-    this.mode = 'UPDATE'; // Assuming you're reusing the form in UPDATE mode
-    this.tx = tx;
-    this.isPreview = true; // Set preview mod
+    this.mode = 'UPDATE';
+    this.transactionPreviewId = txId;
+    this.isPreview = true;
   }
 
   handleSave() {
     this.fetchData();
-    this.toasterService.show('Transactions', this.mode === "CREATE" ? "Transaction is created." : "Transaction is updated.")
+    this.toasterService.show('Transactions', this.mode === "CREATE" ? "Transaction is created." : "Transaction is updated.",
+      'success')
   }
 
   openDeletePopUp(tx: Transaction) {
@@ -153,35 +182,16 @@ export class TransactionTableComponent implements OnInit {
   }
 
   cancelDeletion() {
-    this.tx = {};
+    this.tx = {
+      state: "Pending"
+    };
     this.dialogDeletionConfirmation();
   }
 
-  fetchData(): void {
-    this.service.getPaginatedData(this.pageSize!, this.pageNumber!).subscribe(
-      (data) => {
-        this.transactions = data.content;
-        this.totalPages = data.totalPages;
-      }
-    );
-  }
 
   goToPage(page: number) {
     this.pageNumber = page;
     this.fetchData();
-  }
-
-  getBadgeColor(state: TransactionState | undefined) :string{
-    switch (state) {
-      case 'Suspicious':
-        return 'warning';
-      case 'Normal':
-        return 'success';
-      case 'Fraudulent':
-        return 'danger';
-      default:
-        return 'secondary';
-    }
   }
 }
 

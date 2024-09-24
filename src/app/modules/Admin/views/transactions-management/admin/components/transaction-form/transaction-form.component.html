@@ -1,0 +1,66 @@
+<c-modal [visible]="display" backdrop="static" #model>
+  <c-modal-header>
+    <h5 cModalTitle *ngIf="!isPreview">{{ mode === 'CREATE' ? 'Add New Transaction' : 'Update Transaction' }}</h5>
+    <h5 cModalTitle *ngIf="isPreview">Preview Transaction</h5>
+    <button (click)="closeModal()" cButtonClose></button>
+  </c-modal-header>
+  <c-modal-body>
+    <ng-container *ngTemplateOutlet="form"></ng-container>
+  </c-modal-body>
+  <c-modal-footer>
+    <button [cModalToggle]="model.id" (click)="closeModal()" cButton color="secondary">
+      Close
+    </button>
+    <button cButton color="primary" (click)="onSaveChanges(transaction)"
+            [hidden]="isPreview">{{ mode === 'CREATE' ? 'Save' : 'Save changes' }}
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<ng-template #form>
+  <form cForm class="row g-3">
+    <c-col [md]="6">
+      <label cLabel>Amount</label>
+      <input cFormControl [(ngModel)]="transaction.amount" name="amount" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>User Id</label>
+      <input cFormControl [(ngModel)]="transaction.userId" name="userId" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Device Id</label>
+      <input cFormControl [(ngModel)]="transaction.device_id" name="device_id" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Merchant Id</label>
+      <input cFormControl [(ngModel)]="transaction.merchant_id" name="merchant_id" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Operation Start Date</label>
+      <input cFormControl [(ngModel)]="transaction.operation_start_date" name="operation_start_date" [disabled]="isPreview"/>
+    </c-col>
+
+
+    <c-col [md]="6">
+      <label cLabel>Operation End Date</label>
+      <input cFormControl [(ngModel)]="transaction.operation_end_date" name="operation_end_date" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Http Service Name</label>
+      <input cFormControl [(ngModel)]="transaction.http_service_name" name="http_service_name" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Ip Address</label>
+      <input cFormControl [(ngModel)]="transaction.ip_address" name="ip_address" [disabled]="isPreview"/>
+    </c-col>
+
+    <c-col [md]="6">
+      <label cLabel>Payer Fees</label>
+      <input cFormControl [(ngModel)]="transaction.payerFees" name="payerFees" [disabled]="isPreview"/>
+    </c-col>
+    <c-col [md]="6">
+      <label cLabel>Fees PaymentMode</label>
+      <input cFormControl [(ngModel)]="transaction.feesPaymentMode" name="feesPaymentMode" [disabled]="isPreview"/>
+    </c-col>
+  </form>
+</ng-template>

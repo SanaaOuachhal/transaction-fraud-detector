@@ -1,1 +1,38 @@
-<app-widgets-dropdown />
+<c-row class="g-4">
+  <c-col sm="6" xl="3">
+    <c-widget-stat-a
+      color="primary"
+      [title]="'Total'">
+      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
+        {{ transactionStats.totalCount }}
+      </ng-template>
+    </c-widget-stat-a>
+  </c-col>
+  <c-col sm="6" xl="3" *ngIf="isAdmin">
+    <c-widget-stat-a
+      color="success"
+      [title]="'Normal'">
+      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
+        {{ transactionStats.normalCount }}
+      </ng-template>
+    </c-widget-stat-a>
+  </c-col>
+  <c-col sm="6" xl="3">
+    <c-widget-stat-a
+      color="warning"
+      [title]="'Suspicious'">
+      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
+        {{ transactionStats.suspiciousCount }}
+      </ng-template>
+    </c-widget-stat-a>
+  </c-col>
+  <c-col sm="6" xl="3" *ngIf="isAdmin">
+    <c-widget-stat-a
+      color="danger"
+      [title]="'Fraudulent'">
+      <ng-template cTemplateId="widgetValueTemplate" ngPreserveWhitespaces>
+        {{ transactionStats.fraudulentCount }}
+      </ng-template>
+    </c-widget-stat-a>
+  </c-col>
+</c-row>

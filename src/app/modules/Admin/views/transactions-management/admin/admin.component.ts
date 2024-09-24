@@ -3,7 +3,7 @@ import {TransactionTableComponent} from "./components/transaction-table/transact
 
 
 @Component({
-  selector: 'app-admin',
+  selector: 'admin-tx-management',
   standalone: true,
   imports: [TransactionTableComponent],
   templateUrl: './admin.component.html',

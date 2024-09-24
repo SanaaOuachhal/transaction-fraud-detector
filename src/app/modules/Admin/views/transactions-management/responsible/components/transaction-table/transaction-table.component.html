@@ -2,30 +2,34 @@
   <c-col xs="12">
     <c-card class="mb-4">
       <c-card-body>
-        <h2>Transactions</h2>
-        <div>
-          <button cButton class="me-1 addTransactionBtn" color="primary" type="submit" (click)="addNew()">
-            Add New Transaction
-          </button>
-
-        </div>
-        <table [bordered]="true" borderColor="primary" cTable>
-          <thead>
+        <h2 class="p-2">Transactions</h2>
+        <table striped hover cTable style="margin-top: 2rem;">
+          <thead cTableColor="dark">
           <tr>
-            <th scope="col">id</th>
+            <th scope="col">User id</th>
             <th scope="col">Amount</th>
-            <th scope="col">NameOrig</th>
+            <th scope="col">Device id</th>
+            <th scope="col">Merchant id</th>
+            <th scope="col">Http service name</th>
             <th scope="col">Status</th>
+            <th scope="col"></th>
 
           </tr>
           </thead>
           <tbody>
           <tr *ngFor="let transaction of transactions">
-            <td>{{ transaction.id }}</td>
+            <td>{{ transaction.userId }}</td>
             <td>{{ transaction.amount }}</td>
-            <td>{{ transaction.nameOrig }}</td>
-            <h4><c-badge  [color]="getBadgeColor(transaction.state)"><td>
-              {{ transaction.state }}</td></c-badge></h4>
+            <td>{{ transaction.device_id }}</td>
+            <td>{{ transaction.merchant_id }}</td>
+            <td>{{ transaction.http_service_name }}</td>
+            <td>
+              <h5>
+                <c-badge color="warning">
+                  {{ transaction.state }}
+                </c-badge>
+              </h5>
+            </td>
             <td>
               <c-dropdown>
                 <button cButton cDropdownToggle color="secondary" variant="outline">
@@ -33,22 +37,22 @@
                 </button>
                 <ul cDropdownMenu>
                   <li>
-                    <button cDropdownItem (click)="openUpdate(transaction)">
-                      <svg cIcon class="me-2" name="cil-pencil"></svg>
-                      Update
+                    <button cDropdownItem (click)="markTransactionAs(transaction,'Fraudulent')">
+                      <i class="me-2 fa-solid fa-triangle-exclamation"></i>
+                       Mark as Fraudulent
                     </button>
+                  </li>
 
-                  </li>
                   <li>
-                    <button cDropdownItem (click)="showDetails(transaction)" >
-                      <svg cIcon class="me-2" name="cil-file"></svg>
-                      Preview
+                    <button cDropdownItem (click)="markTransactionAs(transaction,'Normal')">
+                      <svg cIcon class="me-2" name="cil-check"></svg>
+                      Mark as Normal
                     </button>
                   </li>
                   <li>
-                    <button cDropdownItem (click)="openDeletePopUp(transaction)">
-                      <svg cIcon class="me-2" name="cil-trash"></svg>
-                      Delete
+                    <button cDropdownItem (click)="showDetails(transaction)">
+                      <i class="me-2 fa fa-eye"></i>
+                      Preview
                     </button>
                   </li>
                 </ul>
@@ -64,8 +68,8 @@
             <button cPageLink (click)="goToPage(pageNumber - 1)">Previous</button>
           </li>
           <li cPageItem
-              *ngFor="let page of [pageNumber,pageNumber+1,pageNumber+2,pageNumber === totalPages?pageNumber:pageNumber+3]">
-            <button cPageLink (click)="goToPage(page!)">{{ page }}</button>
+              *ngFor="let page of [].constructor(totalPages); let i = index">
+            <button cPageLink (click)="goToPage(i!)">{{ i + 1 }}</button>
           </li>
 
           <li cPageItem [disabled]="pageNumber == totalPages">
@@ -82,7 +86,7 @@
 
 <app-transaction-form [(display)]="displayForm"
                       [mode]="mode"
-                      [tx]="tx"
+                      [transactionId]="tx.id || null"
                       [isPreview]="isPreview"
                       (onSave)="handleSave()"></app-transaction-form>
 

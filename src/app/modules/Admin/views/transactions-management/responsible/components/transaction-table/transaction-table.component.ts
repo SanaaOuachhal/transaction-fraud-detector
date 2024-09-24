@@ -1,7 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-
+import * as _ from 'lodash';
 import {
   AlignDirective,
+  BadgeComponent,
   ButtonCloseDirective,
   ButtonDirective,
   CardBodyComponent,
@@ -28,14 +29,13 @@ import {
   TableDirective
 } from "@coreui/angular";
 import {DocsExampleComponent} from "@docs-components/docs-example/docs-example.component";
-import {TransactionService} from "../../../../services/transaction.service";
-import {Transaction} from "../../../../interfaces/transaction";
+import {TransactionService} from "../../../../../services/transaction.service";
+import Transaction, {TransactionState} from "../../../../../interfaces/transaction";
 import {NgForOf, NgIf} from "@angular/common";
 import {FormMode, TransactionFormComponent} from "../transaction-form/transaction-form.component";
-import {ToasterService} from "../../../../../../services/toaster.service";
+import {ToasterService} from "../../../../../../../services/toaster.service";
 import {RouterLink} from "@angular/router";
 import {IconDirective} from "@coreui/icons-angular";
-import {Observable} from "rxjs";
 
 
 @Component({
@@ -72,19 +72,26 @@ import {Observable} from "rxjs";
     PageItemDirective,
     PaginationComponent,
     NgIf,
-    IconDirective
+    IconDirective,
+    BadgeComponent
   ],
   templateUrl: './transaction-table.component.html',
   styleUrl: './transaction-table.component.scss'
 })
 export class TransactionTableComponent implements OnInit {
 
-  suspiciousTransactions: Transaction[] = [];
+  transactions: Transaction[] = [];
   public visible = false;
-  tx: Transaction = {};
+  tx: Transaction = {
+    state: "Pending"
+  };
   displayForm: boolean = false;
   mode: FormMode = 'CREATE';
   isPreview = false;
+
+  pageSize = 10;
+  pageNumber = 0;
+  totalPages = 0;
 
   //private cachedData: any[];
 
@@ -96,24 +103,26 @@ export class TransactionTableComponent implements OnInit {
     this.fetchData();
   }
 
-  fetchData(): Transaction[] {
-    this.service.getSuspiciousTransactions().subscribe(
+  goToPage(page: number) {
+    this.pageNumber = page;
+    this.fetchData();
+  }
+
+
+  fetchData(): void {
+    this.service.getSuspiciousTransactions(this.pageSize!, this.pageNumber!).subscribe(
       (data) => {
-        this.suspiciousTransactions = data;
-        console.log('get suspicious', data);
-      },
-      (error) => {
-        console.error('Error fetching suspicious transactions', error);
+        this.transactions = data.content;
+        this.totalPages = data.totalPages;
       }
     );
-    return this.suspiciousTransactions;
   }
 
   openUpdate(tx: Transaction) {
     this.displayForm = true;
     this.mode = 'UPDATE';
     this.tx = tx;
-    this.isPreview=false;
+    this.isPreview = false;
   }
 
 
@@ -152,8 +161,21 @@ export class TransactionTableComponent implements OnInit {
   }
 
   cancelDeletion() {
-    this.tx = {};
+    this.tx = {
+      state: "Pending"
+    };
     this.dialogDeletionConfirmation();
+  }
+
+  markTransactionAs(transaction: Transaction,state: TransactionState) {
+    const tx: Transaction = _.cloneDeep(transaction);
+    tx.state = state
+    if(confirm(`Do you really want to mark this transaction as ${state} ?`)){
+      this.service.update(tx).subscribe(() => {
+        this.toasterService.show("Transaction", `Transaction has been marked as ${state}`);
+        this.fetchData();
+      });
+    }
   }
 }
 

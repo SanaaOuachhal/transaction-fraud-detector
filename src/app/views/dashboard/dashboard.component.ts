@@ -1,7 +1,7 @@
-import { DOCUMENT, NgStyle } from '@angular/common';
-import { Component, DestroyRef, effect, inject, OnInit, Renderer2, signal, WritableSignal } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ChartOptions } from 'chart.js';
+import {DOCUMENT, NgIf, NgStyle} from '@angular/common';
+import {Component, DestroyRef, effect, inject, OnInit, Renderer2, signal, WritableSignal} from '@angular/core';
+import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {ChartOptions} from 'chart.js';
 import {
   AvatarComponent,
   ButtonDirective,
@@ -11,20 +11,28 @@ import {
   CardFooterComponent,
   CardHeaderComponent,
   ColComponent,
+  DropdownComponent,
+  DropdownDividerDirective,
+  DropdownItemDirective,
+  DropdownMenuDirective,
+  DropdownToggleDirective,
   FormCheckLabelDirective,
   GutterDirective,
   ProgressBarDirective,
   ProgressComponent,
   RowComponent,
-  TableDirective,
-  TextColorDirective
+  TableDirective, TemplateIdDirective,
+  TextColorDirective, WidgetStatAComponent
 } from '@coreui/angular';
-import { ChartjsComponent } from '@coreui/angular-chartjs';
-import { IconDirective } from '@coreui/icons-angular';
+import {ChartjsComponent} from '@coreui/angular-chartjs';
+import {IconDirective} from '@coreui/icons-angular';
 
-import { WidgetsBrandComponent } from '../widgets/widgets-brand/widgets-brand.component';
-import { WidgetsDropdownComponent } from '../widgets/widgets-dropdown/widgets-dropdown.component';
-import { DashboardChartsData, IChartProps } from './dashboard-charts-data';
+import {WidgetsBrandComponent} from '../widgets/widgets-brand/widgets-brand.component';
+import {WidgetsDropdownComponent} from '../widgets/widgets-dropdown/widgets-dropdown.component';
+import {DashboardChartsData, IChartProps} from './dashboard-charts-data';
+import {KeycloakService} from "keycloak-angular";
+import TransactionStats from "../../modules/Admin/interfaces/transactionStats";
+import {TransactionService} from "../../modules/Admin/services/transaction.service";
 
 interface IUser {
   name: string;
@@ -44,7 +52,7 @@ interface IUser {
   templateUrl: 'dashboard.component.html',
   styleUrls: ['dashboard.component.scss'],
   standalone: true,
-  imports: [WidgetsDropdownComponent, TextColorDirective, CardComponent, CardBodyComponent, RowComponent, ColComponent, ButtonDirective, IconDirective, ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirective, ChartjsComponent, NgStyle, CardFooterComponent, GutterDirective, ProgressBarDirective, ProgressComponent, WidgetsBrandComponent, CardHeaderComponent, TableDirective, AvatarComponent]
+  imports: [WidgetsDropdownComponent, TextColorDirective, CardComponent, CardBodyComponent, RowComponent, ColComponent, ButtonDirective, IconDirective, ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirective, ChartjsComponent, NgStyle, CardFooterComponent, GutterDirective, ProgressBarDirective, ProgressComponent, WidgetsBrandComponent, CardHeaderComponent, TableDirective, AvatarComponent, DropdownComponent, DropdownDividerDirective, DropdownItemDirective, DropdownMenuDirective, DropdownToggleDirective, TemplateIdDirective, WidgetStatAComponent, NgIf]
 })
 export class DashboardComponent implements OnInit {
 
@@ -52,6 +60,30 @@ export class DashboardComponent implements OnInit {
   readonly #document: Document = inject(DOCUMENT);
   readonly #renderer: Renderer2 = inject(Renderer2);
   readonly #chartsData: DashboardChartsData = inject(DashboardChartsData);
+  transactionStats: TransactionStats = {
+    totalCount: 0,
+    normalCount: 0,
+    fraudulentCount: 0,
+    suspiciousCount: 0
+  }
+
+
+  isAdmin = false;
+  isResponsible = false;
+
+  constructor(private keycloak: KeycloakService,private transactionService : TransactionService) {
+  }
+
+
+    ngOnInit(): void {
+      // @ts-ignore
+      const roles: string[] = this.keycloak.getKeycloakInstance().tokenParsed.realm_access.roles;
+      this.isAdmin = roles.includes('admin');
+      this.isResponsible = roles.includes('responsible');
+      this.transactionService.getStats().subscribe(stats => {this.transactionStats = stats;});
+    }
+
+
 
   public users: IUser[] = [
     {
@@ -134,7 +166,7 @@ export class DashboardComponent implements OnInit {
     }
   ];
 
-  public mainChart: IChartProps = { type: 'line' };
+  public mainChart: IChartProps = {type: 'line'};
   public mainChartRef: WritableSignal<any> = signal(undefined);
   #mainChartRefEffect = effect(() => {
     if (this.mainChartRef()) {
@@ -146,17 +178,14 @@ export class DashboardComponent implements OnInit {
     trafficRadio: new FormControl('Month')
   });
 
-  ngOnInit(): void {
-    this.initCharts();
-    this.updateChartOnColorModeChange();
-  }
+
 
   initCharts(): void {
     this.mainChart = this.#chartsData.mainChart;
   }
 
   setTrafficPeriod(value: string): void {
-    this.trafficRadioGroup.setValue({ trafficRadio: value });
+    this.trafficRadioGroup.setValue({trafficRadio: value});
     this.#chartsData.initMainChart(value);
     this.initCharts();
   }
@@ -180,9 +209,9 @@ export class DashboardComponent implements OnInit {
   setChartStyles() {
     if (this.mainChartRef()) {
       setTimeout(() => {
-        const options: ChartOptions = { ...this.mainChart.options };
+        const options: ChartOptions = {...this.mainChart.options};
         const scales = this.#chartsData.getScales();
-        this.mainChartRef().options.scales = { ...options.scales, ...scales };
+        this.mainChartRef().options.scales = {...options.scales, ...scales};
         this.mainChartRef().update();
       });
     }

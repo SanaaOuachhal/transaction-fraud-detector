@@ -1,9 +1,12 @@
-<div class="position-relative">
-  <c-toaster placement="top-end" position="absolute" *ngIf="toastState$ | async as toastState">
-    <c-toast [delay]="3000" [fade]="false"  color="primary" [visible]="toastState.visible">
-      <c-toast-header [closeButton]="false">{{ toastState.title }}</c-toast-header>
-      <c-toast-body>{{ toastState.body }}</c-toast-body>
-    </c-toast>
-  </c-toaster>
-</div>
-<router-outlet/>
+<c-toaster placement="top-end" position="absolute" *ngIf="toastState$ | async as toastState">
+  <c-toast [delay]="3000" [fade]="false"
+           [visible]="toastState.visible">
+    <c-toast-header [cBgColor]="toastState.level || 'info'" [closeButton]="false">
+      <h6 style="color: white">{{ toastState.title }}</h6>
+    </c-toast-header>
+    <c-toast-body>
+      {{ toastState.body }}
+    </c-toast-body>
+  </c-toast>
+</c-toaster>
+<router-outlet></router-outlet>

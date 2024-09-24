@@ -7,7 +7,7 @@ import {Title} from '@angular/platform-browser';
 
 import {IconSetService} from '@coreui/icons-angular';
 import {iconSubset} from './icons/icon-subset';
-import {ButtonCloseDirective, ToastComponent, ToasterComponent, ToastModule} from "@coreui/angular";
+import {BgColorDirective, ButtonCloseDirective, ToastComponent, ToasterComponent, ToastModule} from "@coreui/angular";
 import {ToasterService} from "./services/toaster.service";
 import {AsyncPipe, NgIf} from "@angular/common";
 
@@ -16,7 +16,7 @@ import {AsyncPipe, NgIf} from "@angular/common";
   templateUrl: './app.component.html',
   standalone: true,
 
-  imports: [RouterOutlet, ToastModule, ButtonCloseDirective, AsyncPipe, NgIf]
+  imports: [RouterOutlet, ToastModule, ButtonCloseDirective, AsyncPipe, NgIf, BgColorDirective]
 })
 export class AppComponent implements OnInit {
   title = 'Bank Fraud Detector';
